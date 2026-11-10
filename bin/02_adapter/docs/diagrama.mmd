@@ -1,0 +1,45 @@
+classDiagram
+    class CalculadoraFrete {
+        <<interface>>
+        +calcular(String, String, double) double
+        +prazoDias(String, String) int
+        +nomeTransportadora() String
+    }
+    class CotacaoService {
+        +maisBarata(String, String, double) CalculadoraFrete
+    }
+    class FreteAlfaAdapter {
+        -alfa ServicoTransportadoraAlfa
+    }
+    class FreteBetaAdapter {
+        -beta ApiTransportadoraBeta
+    }
+    class FreteGamaAdapter {
+        -gama ClienteTransportadoraGama
+        -expresso boolean
+    }
+    class ServicoTransportadoraAlfa {
+        +cotarEntrega(String, String, long) long
+        +estimarPrazo(String, String) int
+    }
+    class ApiTransportadoraBeta {
+        +simular(String, String, double) String
+        +previsaoEntrega(String, String) String
+    }
+    class ClienteTransportadoraGama {
+        +consultarTarifa(int, int, double, boolean) TarifaGama
+    }
+    class TarifaGama {
+        -valorBruto double
+        -desconto double
+        -prazoHoras int
+    }
+
+    CotacaoService --> "*" CalculadoraFrete
+    FreteAlfaAdapter ..|> CalculadoraFrete
+    FreteBetaAdapter ..|> CalculadoraFrete
+    FreteGamaAdapter ..|> CalculadoraFrete
+    FreteAlfaAdapter --> ServicoTransportadoraAlfa
+    FreteBetaAdapter --> ApiTransportadoraBeta
+    FreteGamaAdapter --> ClienteTransportadoraGama
+    ClienteTransportadoraGama ..> TarifaGama

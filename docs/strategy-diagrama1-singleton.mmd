@@ -1,0 +1,31 @@
+classDiagram
+    class ConfiguracaoLoja {
+        -ConfiguracaoLoja()
+        +getInstance()$ ConfiguracaoLoja
+        +getPacPorKg() double
+        +setPacPorKg(double)
+        +getPacPorKm() double
+        +setPacPorKm(double)
+        +getSedexPorKg() double
+        +setSedexPorKg(double)
+        +getSedexPorKm() double
+        +setSedexPorKm(double)
+        +getTaxaUrgencia() double
+        +setTaxaUrgencia(double)
+        +restaurarPadroes()
+    }
+    class Holder {
+        -INSTANCIA$ ConfiguracaoLoja
+    }
+    class AuditLog {
+        -instancia$ AuditLog
+        -registros List~String~
+        -AuditLog()
+        +getInstance()$ AuditLog
+        +registrar(String)
+        +getRegistros() List~String~
+        +limpar()
+    }
+    ConfiguracaoLoja +-- Holder
+    note for ConfiguracaoLoja "Criacao segura: initialization-on-demand holder"
+    note for AuditLog "Criacao segura: double-checked locking com volatile. Gravacao: CopyOnWriteArrayList"

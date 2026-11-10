@@ -1,0 +1,43 @@
+classDiagram
+    class CalculadoraDeFrete {
+        -estrategia FreteStrategy
+        +setEstrategia(FreteStrategy)
+        +calcular(Pedido) double
+    }
+    class FreteStrategy {
+        <<interface>>
+        +getNome() String
+        +calcular(Pedido) double
+    }
+    class FretePac
+    class FreteSedex
+    class RetiradaNaLoja
+    class FreteGratisAcima {
+        -interna FreteStrategy
+    }
+    class Pedido {
+        -id int
+        -pesoKg double
+        -distanciaKm double
+        -valorItens double
+    }
+    class ConfiguracaoLoja {
+        <<Singleton>>
+    }
+    class AuditLog {
+        <<Singleton>>
+    }
+
+    CalculadoraDeFrete --> FreteStrategy
+    FretePac ..|> FreteStrategy
+    FreteSedex ..|> FreteStrategy
+    RetiradaNaLoja ..|> FreteStrategy
+    FreteGratisAcima ..|> FreteStrategy
+    FreteGratisAcima --> FreteStrategy
+
+    CalculadoraDeFrete ..> Pedido
+    CalculadoraDeFrete ..> AuditLog
+    FretePac ..> ConfiguracaoLoja
+    FreteSedex ..> ConfiguracaoLoja
+    FretePac ..> Pedido
+    FreteSedex ..> Pedido
