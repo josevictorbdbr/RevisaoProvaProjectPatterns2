@@ -1,79 +1,14 @@
-RESUMO DOS EXERCICIOS - PADROES DE PROJETO
+01- STRATEGY + SINGLETON
+Calcula o frete usando PAC, SEDEX ou retirada. A CalculadoraDeFrete delega
+o calculo a estrategia escolhida. ConfiguracaoLoja centraliza as tarifas e
+AuditLog registra os calculos; ambos usam Singleton.
 
-==================================================
-01 - STRATEGY + SINGLETON (modulo de frete)
-==================================================
-Objetivo: calcular frete de uma loja virtual (PAC, SEDEX, RETIRADA), com
-tarifas centralizadas e auditoria de todos os calculos.
+02- ADAPTER
+Integra tres transportadoras com interfaces diferentes por meio da
+interface CalculadoraFrete, sem alterar as classes dos fornecedores.
+CotacaoService compara as cotacoes e escolhe a mais barata.
 
-Strategy: FreteStrategy (interface) com FretePac, FreteSedex e
-RetiradaNaLoja. CalculadoraDeFrete (contexto) delega o calculo a estrategia
-atual, sem if/switch, e lanca IllegalStateException se nao houver estrategia.
-
-Singleton:
-- ConfiguracaoLoja: guarda as 5 tarifas; usa initialization-on-demand holder.
-- AuditLog: guarda os registros; usa double-checked locking com volatile e
-  CopyOnWriteArrayList (gravacao concorrente sem perder registros).
-
-Detalhes: as estrategias nao guardam tarifas, consultam a ConfiguracaoLoja a
-cada calculo. Pedido e imutavel e valida os dados no construtor.
-Desafio: FreteGratisAcima (frete zero a partir de R$ 300) = padrao Decorator.
-
-Saida esperada: PAC 10,00 | SEDEX 35,00 | RETIRADA 0,00 | PAC 15,00 (tarifa 5,00/kg)
-
-==================================================
-02 - ADAPTER (transportadoras de um marketplace)
-==================================================
-Objetivo: fazer 3 transportadoras com interfaces diferentes funcionarem na
-interface CalculadoraFrete, sem alterar o checkout nem as classes dos
-fornecedores.
-
-Papeis:
-- Client: CotacaoService (escolhe a mais barata)
-- Target: CalculadoraFrete
-- Adapters: FreteAlfaAdapter, FreteBetaAdapter, FreteGamaAdapter
-- Adaptees: ServicoTransportadoraAlfa, ApiTransportadoraBeta,
-  ClienteTransportadoraGama
-
-Conversoes:
-- Alfa: remove hifen do CEP, kg -> gramas (Math.round), centavos -> reais.
-- Beta: CEP com hifen, texto "R$ 36,15" -> double, "5 dias uteis" -> 5.
-- Gama: CEP como int, valor = bruto x (1 - desconto), prazo = ceil(horas/24).
-- CEP sem 8 digitos lanca IllegalArgumentException.
-
-Por que adaptador de objeto (composicao) e nao de classe (heranca): Java nao
-tem heranca multipla de classes; com composicao da para trocar o Adaptee ou
-usar subclasses dele, e os metodos do fornecedor nao vazam para a interface.
-
-Saida esperada (2,5 kg): Alfa 34,00 (6 dias) | Beta 36,15 (5 dias) |
-Gama 30,00 (3 dias) | Gama Expresso 48,00 (1 dia) | Mais barata: Gama
-
-==================================================
-10 - PROTOTYPE (pedidos de uma distribuidora)
-==================================================
-Objetivo: criar novos pedidos a partir da copia de pedidos-modelo.
-
-Estrutura:
-- Prototype<T>: interface com clonar().
-- ItemPedido: produto, quantidade, precoUnitario (BigDecimal); construtor de
-  copia.
-- Pedido: implementa Prototype<Pedido>; id sequencial, cliente, endereco,
-  itens e data de criacao. clonar() faz copia PROFUNDA (nova lista, novos
-  itens) e a copia recebe novo id e nova data.
-- CatalogoDePedidos: registrar(chave, modelo) e criar(chave), que devolve
-  sempre uma copia; chave inexistente lanca IllegalArgumentException.
-- PedidosApp: roda o cenario e verifica os criterios CA-01 a CA-07.
-
-Regras: dinheiro em BigDecimal (nunca double), sem Cloneable/Object.clone().
-Desafio: clonarPorSerializacao() e comparacao de tempo com clonar()
-(100.000 copias; a serializacao e bem mais lenta).
-
-Saida esperada: modelo 315,00 | A 315,00 | B 504,00 | C 387,00 | CA-01..07 OK
-
-==================================================
-COMO RODAR (na pasta do projeto)
-==================================================
-javac -encoding UTF-8 -d out src/strategy/*.java src/adapter/*.java src/pedidos/*.java
-java -cp out strategy.Main
-java -cp out adapter.Main
-java -Dstdout.encoding=UTF-8 -cp out pedidos.PedidosApp
+03- PROTOTYPE
+Cria pedidos a partir de um modelo. Cada copia recebe um novo identificador
+e uma lista de itens independente. O CatalogoDePedidos guarda os modelos e
+cria copias; PedidosApp verifica os resultados e compara os metodos de copia.
